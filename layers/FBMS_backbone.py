@@ -15,8 +15,6 @@ from layers.RevIN import RevIN
 import math
 from torch.fft import rfft, irfft
 
-from layers.expert_moe import Linear_extractor_cluster
-
 from einops import rearrange
 
 class Base_seasonal(nn.Module):
@@ -49,74 +47,17 @@ class Base_seasonal(nn.Module):
         self.cos = nn.Parameter(rolled_tensor_cos, requires_grad=False)
         self.sin = nn.Parameter(rolled_tensor_sin, requires_grad=False)
 
-        # rolled_tensor_cos2 = torch.stack([cos.roll(shifts=-2*i,dims=-1) for i in range(target_window//2)], dim=0)
-        # rolled_tensor_sin2 = torch.stack([sin.roll(shifts=-2*i,dims=-1) for i in range(target_window//2)], dim=0)
-
-        # self.cos2 = nn.Parameter(rolled_tensor_cos2, requires_grad=False)
-        # self.sin2 = nn.Parameter(rolled_tensor_sin2, requires_grad=False)
-
-        # rolled_tensor_cos3 = torch.stack([cos.roll(shifts=-4*i,dims=-1) for i in range(target_window//4)], dim=0)
-        # rolled_tensor_sin3 = torch.stack([sin.roll(shifts=-4*i,dims=-1) for i in range(target_window//4)], dim=0)
-
-        # self.cos3 = nn.Parameter(rolled_tensor_cos3, requires_grad=False)
-        # self.sin3 = nn.Parameter(rolled_tensor_sin3, requires_grad=False)
-
-
         W_pos = torch.empty((self.context_window//2,self.context_window))
         nn.init.uniform_(W_pos, -0.001, 0.001)
         self.parameter=nn.Parameter(W_pos, requires_grad=True)
-        # W_pos2 = torch.empty((self.context_window//2,self.context_window))
-        # nn.init.uniform_(W_pos2, -0.001, 0.001)
-        # self.parameter2=nn.Parameter(W_pos2, requires_grad=True)
-
-        # W_pos2 = torch.empty((self.context_window//4,self.context_window//2))
-        # nn.init.uniform_(W_pos2, -0.001, 0.001)
-        # self.parameter2=nn.Parameter(W_pos2, requires_grad=True)
-
-        # W_pos3 = torch.empty((self.context_window//8,self.context_window//4))
-        # nn.init.uniform_(W_pos3, -0.001, 0.001)
-        # self.parameter3=nn.Parameter(W_pos3, requires_grad=True)
-        
 
     def forward(self, x,freq):   
                                       # x: [bs x nvars x d_model x patch_num]
-
         x=x[:,:,1:,:]
         freq=freq[:,:,1:]
-
-
         hidden_cos=torch.einsum('pkt,kt->pk', self.cos,  self.parameter)
         hidden_sin=torch.einsum('pkt,kt->pk', self.sin,  self.parameter)
         x=torch.einsum('bkt,pt->bkp', freq.real, hidden_cos)+torch.einsum('bkt,pt->bkp', freq.imag, hidden_sin)
-
-
-        # if self.multiscale==2:
-
-        #     parameter2 =self.parameter2.repeat_interleave(2, dim=0).repeat_interleave(2, dim=1)
-
-        #     hidden_cos2=torch.einsum('pkt,kt->pk', self.cos2,  0.5*parameter2)
-        #     hidden_sin2=torch.einsum('pkt,kt->pk', self.sin2,  0.5*parameter2)
-        #     add1=torch.einsum('bkt,pt->bkp', freq.real, hidden_cos2)+torch.einsum('bkt,pt->bkp', freq.imag, hidden_sin2)
-
-        #     parameter3 =self.parameter3.repeat_interleave(4, dim=0).repeat_interleave(4, dim=1)
-
-        #     hidden_cos3=torch.einsum('pkt,kt->pk', self.cos3,  0.25*parameter3)
-        #     hidden_sin3=torch.einsum('pkt,kt->pk', self.sin3,  0.25*parameter3)
-        #     add2=torch.einsum('bkt,pt->bkp', freq.real, hidden_cos3)+torch.einsum('bkt,pt->bkp', freq.imag, hidden_sin3)
-
-
-        #     add1 = F.interpolate(add1, scale_factor=2, mode='linear', align_corners=True)  
-        #     add2 = F.interpolate(add2, scale_factor=4, mode='linear', align_corners=True)
-
-        #     x=x+add1+add2
-        # elif self.multiscale==1:
-        #     parameter2 =self.parameter2.repeat_interleave(2, dim=0).repeat_interleave(2, dim=1)
-        #     hidden_cos2=torch.einsum('pkt,kt->pk', self.cos2,  0.5*parameter2)
-        #     hidden_sin2=torch.einsum('pkt,kt->pk', self.sin2,  0.5*parameter2)
-        #     add1=torch.einsum('bkt,pt->bkp', freq.real, hidden_cos2)+torch.einsum('bkt,pt->bkp', freq.imag, hidden_sin2)
-        #     add1 = F.interpolate(add1, scale_factor=2, mode='linear', align_corners=True)
-        #     x=x+add1
-    
         return x
 
 
@@ -266,8 +207,6 @@ class MLP_backbone_patch(nn.Module):
 
         patch_len=int((context_window*(context_window//2))/self.pacth_num)
 
-        # self.noc_emb = nn.Parameter(torch.zeros(c_in, 128))
-
         if self.linear==1:
             if self.multiscale==2:
                 self.linear1 = nn.Linear(patch_len,hidden1) 
@@ -356,9 +295,7 @@ class MLP_backbone_patch(nn.Module):
                                                 nn.ReLU(),
                                                 nn.Linear(hidden2, target_window),
                                             )
-                
-
-                                            
+                     
 
     def forward(self, x):                             
         x=x[:,:,1:,:]
@@ -399,9 +336,6 @@ class MLP_backbone_patch(nn.Module):
                     down1 = rearrange(down1, "(x l) c y -> x y l c",l=self.pacth_num)
 
                 down1=self.flatten(down1)
-                # noc_emb = self.noc_emb.unsqueeze(0).repeat(a, 1, 1)
-                # down1 = torch.cat([down1, noc_emb], dim=-1)
-
                 add2=self.linear22(down1)
             else:
 
@@ -433,6 +367,13 @@ class MLP_backbone_patch(nn.Module):
             down1= down1.reshape(down1.shape[0], down1.shape[1],down1.shape[2], down1.shape[3]//2,2 )
             down1= down1.mean(dim=-1) 
 
+
+            down2= down1.reshape(down1.shape[0], down1.shape[1],down1.shape[2]//2,2, down1.shape[3])
+            down2= down2.sum(dim=-2) 
+            down2= down2.reshape(down2.shape[0], down2.shape[1],down2.shape[2], down2.shape[3]//2,2 )
+            down2= down2.mean(dim=-1)
+
+
             a,b,c,d = down1.shape
             e=d//self.pacth_num
             down1=down1.reshape(a,b,c,self.pacth_num,e)
@@ -444,10 +385,6 @@ class MLP_backbone_patch(nn.Module):
                 down1 = self.revin1(down1, 'norm')
                 down1 = rearrange(down1, "(x l) c y -> x y l c",l=self.pacth_num)
 
-            down2= down1.reshape(down1.shape[0], down1.shape[1],down1.shape[2]//2,2, down1.shape[3])
-            down2= down2.sum(dim=-2) 
-            down2= down2.reshape(down2.shape[0], down2.shape[1],down2.shape[2], down2.shape[3]//2,2 )
-            down2= down2.mean(dim=-1)
 
             a,b,c,d = down2.shape
             e=d//self.pacth_num
@@ -542,9 +479,6 @@ class MLP_backbone_patch(nn.Module):
                 x = rearrange(x, "(x l) c y -> x y l c",l=self.pacth_num)
 
             x=self.flatten(x)            
-            # noc_emb = self.noc_emb.unsqueeze(0).repeat(a, 1, 1)
-            # x = torch.cat([x, noc_emb], dim=-1)
-
             x=self.linear11(x)
         return x
 
@@ -581,68 +515,6 @@ class backbone_PatchTST(nn.Module):
         self.revin2 = RevIN(c_in)
         self.revin3 = RevIN(c_in)
         self.centralization=centralization
-
-
-        # if self.linear==1:
-        #     if self.multiscale==2:
-        #         self.W_P_1 = nn.Linear(patch_len,d_model)
-        #         self.W_P_2 = nn.Linear(patch_len//4,d_model)
-        #         self.W_P_3 = nn.Linear(patch_len//16,d_model)
-        #     elif self.multiscale==1:
-        #         self.W_P_1  = nn.Linear(patch_len,d_model)
-        #         self.W_P_2  = nn.Linear(patch_len//4,d_model)
-        #     else:
-        #         self.W_P_1 = nn.Linear(patch_len,d_model)
-
-
-        # else:
-        #     if self.multiscale==2:
-        #         self.W_P_1 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )
-
-        #         self.W_P_2 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len//4 ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )
-        #         self.W_P_3 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len//16 ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )                                    
-        #     elif self.multiscale==1:
-        #         self.W_P_1 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )
-
-        #         self.W_P_2 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len//4 ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )
-        #     else:
-        #         self.W_P_1 = nn.Sequential(
-        #                                 torch.nn.Linear(patch_len ,d_model
-        #                                 ),
-        #                                 nn.Dropout(p=0.15),
-        #                                 nn.ReLU(),
-        #                                 # torch.nn.Linear( d_model,d_model)
-        #                                 )
 
         if self.multiscale==2:
             self.W_P_1 = nn.Linear(patch_len,d_model)
@@ -858,6 +730,7 @@ class backbone_PatchTST(nn.Module):
                 down1 = self.W_P_2(down1)
                 if self.linear==0:
                     down1 = self.W_P_22(down1)  
+
                 if self.centralization:   
                     down2 = rearrange(down2, "x y l c -> (x l) c y")
                     down2 = self.revin2(down2, 'denorm')
@@ -884,7 +757,6 @@ class backbone_PatchTST(nn.Module):
                 z=(z+down1+down2)*(1/3)
 
         else:
-
             a,b,c,d = z.shape
             e=d//self.pacth_num
             z=z.reshape(a,b,c,self.pacth_num,e)
@@ -903,7 +775,6 @@ class backbone_PatchTST(nn.Module):
                 z = rearrange(z, "x y l c -> (x l) c y")
                 z = self.revin3(z, 'denorm')
                 z = rearrange(z, "(x l) c y -> x y l c",l=self.pacth_num)
-
 
         z =self.backbone(z)
         z =self.head(z)
@@ -942,23 +813,12 @@ class Interaction_backbone(nn.Module):
 
         self.patch_num=configs.patch_num
         patch_len=int((context_window*(context_window//2))/self.patch_num)
-
-        # if self.patch==1:
-        #     patch=int(context_window//self.patch_num)
-        #     self.num_patch=self.cut1//patch
-        #     dim=d_model2//self.num_patch
-        #     self.linear = nn.Linear(patch_len,dim)
-        #     self.linear2= nn.Linear(dim*self.num_patch, d_model2)
-        # else:
         self.linear=nn.Linear(cut1*(context_window//2),d_model2)
-
 
         if self.cut2 <self.target_window:
             self.proj=nn.Linear(d_model2,cut2 )
         else:
             self.proj=nn.Linear(d_model2,self.target_window )
-
-        # self.cluster = Linear_extractor_cluster(configs)
         self.revin = RevIN(configs.enc_in)
 
 
@@ -966,36 +826,7 @@ class Interaction_backbone(nn.Module):
     def forward(self, z,channel_mask):
 
         z=z[:,:,1:,:]         
-        # if self.cut1==self.context_window:
-        #     z=self.linear(self.flatten(z))
-        # else:
-        #     z=self.linear(self.flatten(z[:,:,:,-self.cut1:]))
-
-        # if self.patch==1:
-
-        #     a,b,c,d = z.shape
-        #     e=d//self.patch_num
-        #     z=z.reshape(a,b,c,self.patch_num,e)
-        #     z=z.permute(0,1,3,2,4)
-        #     z=z.reshape(a,b,z.size()[2],-1)                                           # x: [bs x nvars x patch_num x patch_len]
-
-        #     z = rearrange(z, "x y l c -> (x l) c y")
-        #     z = self.revin(z, 'norm')
-        #     z = rearrange(z, "(x l) c y -> x y l c",l=self.patch_num)
-
-
-        #     z = self.linear(z)
-
-        #     z = rearrange(z, "x y l c -> (x l) c y")
-        #     z = self.revin(z, 'denorm')
-        #     z = rearrange(z, "(x l) c y -> x y l c",l=self.patch_num)
-
-        #     z=self.linear2(self.flatten(z[:,:,-self.num_patch:,:]))
-
-        # else:
-
         z=self.flatten(z[:,:,:,-self.cut1:])
-
         if self.cut1<self.context_window:
             z=z.permute(0,2,1)
             z = self.revin(z, 'norm')
@@ -1008,12 +839,6 @@ class Interaction_backbone(nn.Module):
             z=z.permute(0,2,1)
             z = self.revin(z, 'denorm')
             z=z.permute(0,2,1)
-            
-        # channel_independent_input = rearrange(z, 'b l n -> (b l) n 1')
-
-        # reshaped_output =self.cluster(channel_independent_input)
-
-        # temporal_feature = rearrange(reshaped_output, '(b l) 1 n -> b l n', b=z.size()[0])
 
         if self.channel_mask:
             z,attention=self.encoder(z,attn_mask=channel_mask)
@@ -1415,8 +1240,6 @@ class _ScaledDotProductAttention(nn.Module):
 
         if self.res_attention: return output, attn_weights, attn_scores
         else: return output, attn_weights
-
-
 
 
 class Flatten_Head(nn.Module):

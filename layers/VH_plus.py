@@ -8,8 +8,6 @@ import numpy as np
 class BinaryConcrete(nn.Module):
     def __init__(self, temp,batch_size,ndim):
         super(BinaryConcrete, self).__init__()
-        # self.gumbel = torch.distributions.Gumbel(
-        #     torch.zeros([batch_size,ndim,1]), torch.ones([batch_size,ndim,1]))
         self.temp = temp
         self.sigmoid = nn.Sigmoid()
 
@@ -17,7 +15,6 @@ class BinaryConcrete(nn.Module):
         noise = torch.rand_like(alpha).cuda()
         noise=torch.log(noise)-torch.log(1-noise)
         ouput=self.sigmoid((alpha + noise) / self.temp)
-        # ouput=self.sigmoid((alpha + self.gumbel.sample().cuda()) / self.temp)
 
         return ouput
     
@@ -51,9 +48,6 @@ class Inference(nn.Module):
             self.fc2 = nn.Linear(hidden, output)
             self.sigmoid=nn.Sigmoid()
             self.act_fn = nn.Tanh()
-        # self.fc1 = nn.Linear(input, hidden)
-        # self.fc2 = nn.Linear(hidden, output)
-        # self.act_fn = nn.Tanh()
 
     def forward(self, x):
         if self.individual:
