@@ -1,6 +1,7 @@
-# Rethinking Fourier Transform from A Basis Functions Perspective for Long-term Time Series Forecasting. (NeurIPS 2024)
+# A Time-Frequency Learning Framework for Time Series Forecasting by Applying Fourier Basis Functions
 
-### This is the offical implementation of FBM-L, FBM-NL and FBM-NP model. 
+This is the expanding work from the original paper "Rethinking Fourier Transform from A Basis Functions Perspective for Long-term Time Series Forecasting." (NeurIPS 2024) to a journal. 
+### This is the offical implementation of FBM-S model. 
 
 ### Implement the project
 
@@ -8,18 +9,15 @@
 
 2. Download data. You can download the ETTh1, ETTh2, ETTm1, ETTm2, Electricity and Traffic data from [Autoformer](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy) and WTH data from [Google Drive](https://drive.google.com/drive/folders/1ohGYWWohJlOlb2gsGTeEq3Wii2egnEPR?usp=sharing) Create a seperate folder ```./dataset``` and put all the csv files in the directory.
 
-3. Training. All the scripts are in the directory ```./scripts/FBM/file_to_implement.sh```
+3. Training. All the scripts are in the directory ```./scripts/long_term_forecast/file_to_implement.sh``` and ```./scripts/short_term_forecast/file_to_implement.sh```
 ```
-sh ./scripts/FBM/ETTh1.sh
+sh ./scripts/long_term_forecast/ETTh1.sh
 ```
 You can adjust the hyperparameters based on your needs.
 ## Fourier Basis Mapping
 
-![alt text](https://github.com/runze1223/Fourier-Basis-Mapping/blob/main/pic/imag1.png)
-![alt text](https://github.com/runze1223/Fourier-Basis-Mapping/blob/main/pic/imag2.png)
-## Main Results
-
-![alt text](https://github.com/runze1223/Fourier-Basis-Mapping/blob/main/pic/imag3.png)
+![alt text](https://github.com/runze1223/FBM-S/blob/main/pic/imag1.png)
+![alt text](https://github.com/runze1223/FBM-S/blob/main/pic/imag2.png)
 
 ## Acknowledgement
 
@@ -48,6 +46,8 @@ https://github.com/thuml/iTransformer
 https://github.com/kwuking/TimeMixer
 
 https://github.com/VEWOXIC/FITS
+
+https://github.com/decisionintelligence/DUET
 
 ## Citation
 
