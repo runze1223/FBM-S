@@ -7,16 +7,16 @@ class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
         self.model_dict = {
-            'TimeMixer': TimeMixer,
-            'FBM-Super': FBM_S,
-            'FBM-NL': FBP_NL,
+            'FBM-S': FBM_S,
             'FBM-L': FBP_L,
+            'FBM-NL': FBP_NL,
             'FBM-NP': FBP_NP,                       
-            'TimesNet': TimesNet,
-            'FiLM': FiLM,
             'NLinear': NLinear,
+            'TimeMixer': TimeMixer,
             'iTransformer': iTransformer,
             'PatchTST': PatchTST,
+            'TimesNet': TimesNet,
+            'FiLM': FiLM,
 
         }
         self.device = self._acquire_device()

@@ -12,10 +12,6 @@ import time
 import warnings
 import numpy as np
 
-from thop import profile
-
-from ptflops import get_model_complexity_info
-
 warnings.filterwarnings('ignore')
 
 
@@ -84,7 +80,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         if self.args.output_attention:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
-                            if self.args.model=='FBM-Super':
+                            if self.args.model=='FBM-S':
                                 outputs = self.model(batch_x, batch_x_mark, basis_data)
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -92,7 +88,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     if self.args.output_attention:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
-                        if self.args.model=='FBM-Super':
+                        if self.args.model=='FBM-S':
                             outputs = self.model(batch_x, batch_x_mark, basis_data)
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -106,18 +102,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 loss = criterion(pred, true)
                 total_loss.append(loss.item())
-                # if self.args.data == 'PEMS':
-                #     B, T, C = pred.shape
-                #     pred = pred.cpu().numpy()
-                #     true = true.cpu().numpy()
-                #     pred = vali_data.inverse_transform(pred.reshape(-1, C)).reshape(B, T, C)
-                #     true = vali_data.inverse_transform(true.reshape(-1, C)).reshape(B, T, C)
-                #     mae, mse, rmse, mape, mspe = metric(pred, true)
-                #     total_loss.append(mae)
 
-                # else:
-                #     loss = criterion(pred, true)
-                #     total_loss.append(loss.item())
         total_loss = np.average(total_loss)
         self.model.train()
         return total_loss
@@ -195,7 +180,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         if self.args.output_attention:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
-                            if self.args.model=='FBM-Super':
+                            if self.args.model=='FBM-S':
                                 outputs = self.model(batch_x, batch_x_mark, basis_data)
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -210,7 +195,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     if self.args.output_attention:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
-                        if self.args.model=='FBM-Super':
+                        if self.args.model=='FBM-S':
                             outputs = self.model(batch_x, batch_x_mark, basis_data)
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -231,18 +216,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                     iter_count = 0
                     time_now = time.time()
-
-
-                # allocated = torch.cuda.memory_allocated() / 1024**2  # 已分配显存 MiB
-                # reserved = torch.cuda.memory_reserved() / 1024**2    # 保留显存 MiB
-                # max_allocated = torch.cuda.max_memory_allocated() / 1024**2
-                # print(f" Allocated: {allocated:.2f} MiB | Reserved: {reserved:.2f} MiB | Max: {max_allocated:.2f} MiB")
-
-                # flops, params = profile(self.model, inputs=(batch_x, batch_x_mark, dec_inp, batch_y_mark))
-                # print(params)
-                # print(f"FLOPs: {flops / 1e9:.2f} GFLOPs")
-                # print(stop)
-
 
                 if self.args.use_amp:
                     scaler.scale(loss).backward()
@@ -270,13 +243,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 print("Early stopping")
                 break
 
-            # if self.args.lradj != 'TST':
-            #     adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args, printout=True)
-            # else:
-            #     print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
             if self.args.lradj == 'TST':
                 print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
-
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
@@ -299,11 +267,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         preds = []
         trues = []
         inputx = []
-        means=[]
-        stds=[]
-        a=[]
-        b=[]
-        c=[]
 
 
         folder_path = './test_results/' + setting + '/'
@@ -328,21 +291,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     batch_x_mark = None
                     batch_y_mark = None
 
-                # for name, param in self.model.model.named_parameters():
-                #     print(f"{name}: {param.numel()} parameters")
-
-                # trainable = sum(p.numel() for p in self.model.model.parameters() if p.requires_grad)
-                # print(f"Trainable parameters: {trainable:,}")
-
-                # input_shape = (64, 170, 169, 336)
-                # dummy_input = torch.randn(*input_shape).cuda()
-
-                # flops, params = profile(self.model.model_seasonal, inputs=(dummy_input, ))
-                # print(f"FLOPs: {flops / 1e9:.2f} GFLOPs")
-                # print(stop)
-
-
-
                 if self.args.down_sampling_layers == 0:
                     dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                     dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
@@ -355,7 +303,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         if self.args.output_attention:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
-                            if self.args.model=='FBM-Super':
+                            if self.args.model=='FBM-S':
                                 outputs = self.model(batch_x, batch_x_mark, basis_data)
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -364,7 +312,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
 
                     else:
-                        if self.args.model=='FBM-Super':
+                        if self.args.model=='FBM-S':
                             start = time.time()
                             outputs = self.model(batch_x, batch_x_mark, basis_data)
                             end  = time.time()
@@ -372,43 +320,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                             start = time.time()
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                             end  = time.time()
-
-                # print(f"Inference time: {(end - start) * 1000:.2f} ms")
-        
-                # input_shape = (64, 170, 169, 336)
-                # dummy_input = torch.randn(*input_shape).cuda()
-
-                # flops, params = profile(self.model, inputs=(batch_x, batch_x_mark, dec_inp, batch_y_mark))
-                # print(params)
-                # print(f"FLOPs: {flops / 1e9:.2f} GFLOPs")
-
-                # allocated_memory = torch.cuda.memory_allocated()
-                # reserved_memory = torch.cuda.memory_reserved()
-
-                # print(f"Allocated Memory: {allocated_memory / (1024 ** 2):.2f} MB")
-                # print(f"Reserved Memory: {reserved_memory / (1024 ** 2):.2f} MB")
-                # print(stop)
-                    
-##################new####################################################
-                # adds,mean,std=self.model.obtain(batch_x, batch_x_mark, basis_data)
-                # trend=adds[0]
-                # seasonal=adds[1]
-                # interaction=adds[2]
-
-                # trend = trend.detach().cpu().numpy()
-                # seasonal = seasonal.detach().cpu().numpy()
-                # interaction = interaction.detach().cpu().numpy()
-                # mean = mean.detach().cpu().numpy()
-                # std = std.detach().cpu().numpy()
-
-                # means.append(mean)
-                # stds.append(std)
-                # a.append(trend)
-                # b.append(seasonal)
-                # c.append(interaction)
-
-#########################################################################
-
 
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -424,8 +335,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 trues.append(true)
                 inputx.append(batch_x.detach().cpu().numpy())
                 
-
-                
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
@@ -439,16 +348,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         trues = np.concatenate(trues, axis=0)
         inputx = np.concatenate(inputx, axis=0)
 
-############################new###########################################
-        # a = np.concatenate(a, axis=0)
-        # b = np.concatenate(b, axis=0)
-        # c = np.concatenate(c, axis=0)
-        # means = np.concatenate(means, axis=0)
-        # stds = np.concatenate(stds, axis=0)
 
-##########################################################################
-        # preds = np.array(preds)
-        # trues = np.array(trues)
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
@@ -456,13 +356,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         print('test shape:', preds.shape, trues.shape)
 
-        # if self.args.data == 'PEMS':
-        #     B, T, C = preds.shape
-        #     preds = test_data.inverse_transform(preds.reshape(-1, C)).reshape(B, T, C)
-        #     trues = test_data.inverse_transform(trues.reshape(-1, C)).reshape(B, T, C)
-
-
-        # result save
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -481,22 +374,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         f.write('\n')
         f.close()
 
-
-        index = torch.arange(0, inputx.shape[0], 336)
-
         # np.save(folder_path + 'inputx.npy', inputx)
         # np.save(folder_path + 'pred.npy', preds)
         # np.save(folder_path + 'true.npy', trues)
 
 
-# #######################
-        # np.save(folder_path + 'trend.npy', a)
-        # np.save(folder_path + 'seasonal.npy', b)
-        # np.save(folder_path + 'interaction.npy', c)
-        # np.save(folder_path + 'mean.npy', means)
-        # np.save(folder_path + 'std.npy', stds)
-####################################
-        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        # np.save(folder_path + 'pred.npy', preds)
-        # np.save(folder_path + 'true.npy', trues)
         return
