@@ -1,5 +1,12 @@
 #export CUDA_VISIBLE_DEVICES=0
 
+if [ ! -d "./logs" ]; then
+    mkdir ./logs
+fi
+
+if [ ! -d "./logs/LongForecasting_new" ]; then
+    mkdir ./logs/LongForecasting_new
+fi
 
 
 seq_len=336
@@ -26,23 +33,13 @@ do
     --patch_num 14\
     --des 'Exp' \
     --train_epochs 100\
-    --beta 1\
     --patience 10\
     --d_model2 128\
     --self_backbone 'MLP'\
-    --cut1 24\
-    --cut2 24 \
-    --dropout_total 0\
-    --dropout_total2 0.5\
     --interaction 0\
     --linear 1\
     --seasonal 1\
     --trend 1\
-    --timestamp 0\
-    --multiscale 0\
-    --drop_initial 0\
-    --dropout2 0.15\
-    --d_model2 128 \
     --patch 0\
     --itr 1 --batch_size 128 --learning_rate 0.00002 >logs/LongForecasting_new/Exchange_$model_name'_336_'$pred_len.log  
 done

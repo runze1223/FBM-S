@@ -1,22 +1,17 @@
 export CUDA_VISIBLE_DEVICES=0
 
-model_name=TimeMixer
+if [ ! -d "./logs" ]; then
+    mkdir ./logs
+fi
 
-# seq_len=96
-# e_layers=2
-# down_sampling_layers=3
-# down_sampling_window=2
-# learning_rate=0.01
-# d_model=16
-# d_ff=32
-# train_epochs=10
-# patience=10
-# batch_size=16
+if [ ! -d "./logs/LongForecasting_new" ]; then
+    mkdir ./logs/LongForecasting_new
+fi
 
 
 
 seq_len=336
-model_name=FBM-Super
+model_name=FBM-S
 embedding=3
 
 
@@ -40,21 +35,15 @@ do
     --patch_num 14\
     --des 'Exp' \
     --train_epochs 100\
-    --beta 1\
     --patience 3\
     --d_model2 128\
     --self_backbone 'MLP'\
-    --cut1 $seq_len\
-    --cut2 $pred_len \
     --dropout_total 0.5\
-    --dropout_total2 0.5\
     --interaction 0\
     --linear 1\
     --seasonal 1\
     --trend 1\
     --timestamp 1\
-    --multiscale 0\
-    --drop_initial 0\
     --embedding $embedding \
     --patch 0\
     --itr 1 --batch_size 128 --learning_rate 0.00002 >logs/LongForecasting_new/ETTh1_$model_name'_96_'$pred_len.log  
