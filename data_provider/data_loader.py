@@ -911,8 +911,6 @@ class Dataset_Solar(Dataset):
         return self.scaler.inverse_transform(data)
 
 
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def generate_the_gradient(data_x_train,kernel_size=None):
 
     if kernel_size==None:

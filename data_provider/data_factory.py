@@ -44,8 +44,6 @@ def data_provider(args, flag):
     else:
         timeenc = 1
 
-    # timeenc = 0 if args.embed != 'timeF' else 1
-
     if flag == 'test':
         shuffle_flag = False
         drop_last = True
