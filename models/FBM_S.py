@@ -37,6 +37,7 @@ class BinaryConcrete(nn.Module):
         return ouput
 
 
+###########################mask############################################################
 class Mahalanobis_mask(nn.Module):
     def __init__(self, input_size):
         super(Mahalanobis_mask, self).__init__()
@@ -47,12 +48,9 @@ class Mahalanobis_mask(nn.Module):
         XF = torch.abs(torch.fft.rfft(X, dim=-1))
         X1 = XF.unsqueeze(2)
         X2 = XF.unsqueeze(1)
-
         # B x C x C x D
         diff = X1 - X2
-
         temp = torch.einsum("dk,bxck->bxcd", self.A, diff)
-
         dist = torch.einsum("bxcd,bxcd->bxc", temp, temp)
 
         # exp_dist = torch.exp(-dist)
@@ -93,10 +91,8 @@ class Mahalanobis_mask(nn.Module):
 
     def forward(self, X):
         p = self.calculate_prob_distance(X)
-
         # bernoulli中两个通道有关系的概率
         sample = self.bernoulli_gumbel_rsample(p)
-
         mask = sample.unsqueeze(1)
         cnt = torch.sum(mask, dim=-1)
         return mask
@@ -108,15 +104,10 @@ def top_k_amplitudes_torch(x, k):
     mask = torch.zeros_like(x, dtype=amplitudes.dtype)  # create mask with same shape as x, filled with 0
     # scatter 1.0 to the top-k positions
     mask.scatter_(dim=-1, index=indices, value=1.0)
-
     mask2 = torch.ones_like(x, dtype=amplitudes.dtype)  # create mask with same shape as x, filled with 0
     # scatter 1.0 to the top-k positions
     mask2.scatter_(dim=-1, index=indices, value=0.0)
-
-
-
     return mask, mask2
-#############################################################################################
 
 ###########################################################################################
 
@@ -193,7 +184,6 @@ class Model(nn.Module):
         if self.timestamp==1:
             self.VH=VH(configs)
 
-
         cut1=configs.cut1
         cut2=configs.cut2
         hidden1=configs.hidden1
@@ -211,20 +201,10 @@ class Model(nn.Module):
         if self.channel_mask:
             self.mask_generator = Mahalanobis_mask(configs.seq_len)
 
-        
-
-        # W_pos = torch.empty(context_window//2+1)
-        # nn.init.uniform_(W_pos, -0.001, 0.001)
-        # self.parameter=nn.Parameter(W_pos, requires_grad=True)
-        # W_pos2 = torch.empty(context_window//2+1)
-        # nn.init.uniform_(W_pos2, -0.001, 0.001)
-        # self.parameter2=nn.Parameter(W_pos2, requires_grad=True)
 
         if self.interaction==1:
             self.model_interaction=Interaction_backbone(configs, context_window, target_window,cut1 ,cut2,d_model2,dropout2,n_heads,n_layers)
 
-        # self.temp=0.05
-        # self.binaryConcrete=BinaryConcrete(self.temp)
         if self.seasonal==1:
             self.model_seasonal=Base_seasonal(context_window,target_window,multiscale)
 
@@ -243,17 +223,7 @@ class Model(nn.Module):
             else:
                 self.model= MLP_backbone(context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial)
 
-    # def sample(self, alpha, temp=None):
-    #     if self.training:
-    #         residual=self.binaryConcrete(alpha)
-    #         return residual
-    #     else:
-    #         return(torch.sigmoid((alpha)/self.temp)> 0.5).float()
-
-
-
     def forward(self, x,y,z):           # x: [Batch, Input length, Channel]
-
 
         if self.timestamp==1:
             x,adding,kl_divergence_total=self.VH(x,y,z)
@@ -274,14 +244,9 @@ class Model(nn.Module):
         frequency=rfft(x,axis=-1)
         X_oneside=frequency/(norm)*2
 
-        # mask1, mask2 =top_k_amplitudes_torch(X_oneside,20)
-
         basis_cos=torch.einsum('bkp,pt->bkpt', X_oneside.real, self.cos)
         basis_sin=torch.einsum('bkp,pt->bkpt', X_oneside.imag, self.sin)
         x=basis_cos+basis_sin
-
-        # trend=torch.einsum('bkpt,bkp->bkpt', x, mask1)
-        # interaction=torch.einsum('bkpt,bkp->bkpt', x, mask2)
 
         adds=[]
         if self.trend==1:
@@ -316,70 +281,3 @@ class Model(nn.Module):
 
         return k
 
-
-    # def obtain(self, x,y,z):           # x: [Batch, Input length, Channel]
-
-    #     if self.timestamp==1:
-    #         x,adding,kl_divergence_total=self.VH(x,y,z)
-        
-    #     x = x.permute(0,2,1)    # x: [Batch, Channel, Input length]
-
-    #     if self.channel_mask:
-    #         channel_mask = self.mask_generator(x)
-    #     else:
-    #         channel_mask=None
-            
-    #     if self.revin: 
-    #         x = x.permute(0,2,1)
-    #         x = self.revin_layer(x, 'norm')
-    #         x = x.permute(0,2,1)
-
-    #     norm=x.size()[-1]
-    #     frequency=rfft(x,axis=-1)
-    #     X_oneside=frequency/(norm)*2
-
-    #     # mask1, mask2 =top_k_amplitudes_torch(X_oneside,20)
-
-    #     basis_cos=torch.einsum('bkp,pt->bkpt', X_oneside.real, self.cos)
-    #     basis_sin=torch.einsum('bkp,pt->bkpt', X_oneside.imag, self.sin)
-    #     x=basis_cos+basis_sin
-
-    #     # trend=torch.einsum('bkpt,bkp->bkpt', x, mask1)
-    #     # interaction=torch.einsum('bkpt,bkp->bkpt', x, mask2)
-
-    #     adds=[]
-    #     if self.trend==1:
-    #         add = self.dropout(self.model(x))
-    #         adds.append(add)
-
-    #     if self.seasonal==1:
-    #         add=self.model_seasonal(x,X_oneside)
-    #         adds.append(add)
-
-    #     if self.interaction==1:
-    #         add=self.model_interaction(x,channel_mask)
-    #         add= self.dropout2(add)
-    #         adds.append(add)
-
-    #     for i in range(len(adds)):
-    #         if i==0:
-    #             k=adds[i]
-    #         else:
-    #             k=k+adds[i]
-
-    #     if self.revin: 
-    #         k = k.permute(0,2,1)
-    #         k = self.revin_layer(k, 'denorm')
-    #         k = k.permute(0,2,1)
-
-    #     k = k.permute(0,2,1)    # x: [Batch, Input length, Channel]
-
-    #     if self.timestamp==1:
-    #         for i in range(len(adding)):
-    #             k=adding[i].permute(0,2,1)+k
-
-    #     mean=self.revin_layer.mean
-    #     std=self.revin_layer.stdev
-
-
-    #     return adds, mean, std
