@@ -94,7 +94,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-                if self.args.model=='FBM-Super':
+                if self.args.model=='FBM-S':
                     outputs = self.model(batch_x, None, None)
                 else:
                     outputs = self.model(batch_x, None, dec_inp, None)
