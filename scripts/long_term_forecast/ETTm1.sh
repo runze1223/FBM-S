@@ -1,5 +1,15 @@
 export CUDA_VISIBLE_DEVICES=0
 
+if [ ! -d "./logs" ]; then
+    mkdir ./logs
+fi
+
+if [ ! -d "./logs/LongForecasting_new" ]; then
+    mkdir ./logs/LongForecasting_new
+fi
+
+
+
 seq_len=336
 model_name=FBM-S
 
@@ -42,3 +52,4 @@ do
     --patch 1\
     --itr 1 --batch_size 128 --learning_rate 0.00004 >logs/LongForecasting_new/ETTm1_$model_name'_96_'$pred_len.log  
 done
+

@@ -12,7 +12,7 @@ fi
 seq_len=336
 model_name=FBM-Super
 embedding=1
-for pred_len in 192 336 720
+for pred_len in 96 192 336 720
 do
     python -u run.py \
     --task_name long_term_forecast \

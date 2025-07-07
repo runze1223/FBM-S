@@ -31,21 +31,23 @@ do
     --c_out 7\
     --des 'Exp' \
     --train_epochs 100\
-    --patience 5\
+    --patience 10\
     --self_backbone 'MLP'\
-    --dropout_total 0\
-    --dropout_total2 0\
-    --interaction 0\
-    --linear 1\
+    --dropout_total 0.2\
+    --dropout_total2 0.2\
+    --cut1 48\
+    --cut2 48\
+    --d_model2 128\
+    --interaction 1\
+    --linear 0\
     --seasonal 1\
     --trend 1\
-    --patch 1\
+    --patch 0\
     --hidden1 128\
-    --lradj 'ST'\
-    --itr 1 --batch_size 128 --learning_rate 0.0004  >logs/LongForecasting_new/ETTm2_$model_name'_96_'$pred_len.log  
+    --hidden1 1440\
+    --lradj 'TST'\
+    --itr 1 --batch_size 128 --learning_rate  0.0004  >logs/LongForecasting_new/ETTm2_$model_name'_336_'$pred_len.log  
 done
-
-
 
 
 

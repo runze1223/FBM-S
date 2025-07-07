@@ -46,7 +46,7 @@ do
     --trend 1\
     --timestamp 1\
     --embedding $embedding \
-    --patch 1\
+    --patch 0\
     --itr 1 --batch_size 128 --learning_rate 0.00001 >logs/LongForecasting_new/ETTh2_$model_name'_96_'$pred_len.log  
 done
 

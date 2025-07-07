@@ -8,8 +8,7 @@ if [ ! -d "./logs/LongForecasting_new" ]; then
 fi
 
 seq_len=336
-model_name=FBM-Super
-
+model_name=FBM-S
 
 for pred_len in 96 192 336 720
 do
@@ -36,7 +35,7 @@ do
     --dropout2 0.2\
     --d_model2 256\
     --interaction 1\
-    --linear 1\
+    --linear 0\
     --seasonal 1\
     --trend 1\
     --multiscale 1\
