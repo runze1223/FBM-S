@@ -52,6 +52,8 @@ def data_provider(args, flag):
         else:
             batch_size = args.batch_size  # bsz=1 for evaluation
         freq = args.freq
+        if 'PEMS' in args.data:
+            drop_last = False
     else:
         shuffle_flag = True
         drop_last = True
