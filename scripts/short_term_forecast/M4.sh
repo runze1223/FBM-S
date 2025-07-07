@@ -10,35 +10,11 @@ fi
 
 model_name=FBM-S
 learning_rate=0.0001
-batch_size=64
+batch_size=16
 
 python -u run.py \
   --task_name short_term_forecast \
-  --is_training 1 \
-  --root_path ./dataset/m4 \
-  --seasonal_patterns 'Monthly' \
-  --model_id m4_Monthly \
-  --model $model_name \
-  --data m4 \
-  --features M \
-  --enc_in 1 \
-  --dec_in 1 \
-  --c_out 1 \
-  --batch_size $batch_size\
-  --des 'Exp' \
-  --learning_rate $learning_rate \
-  --train_epochs 150 \
-  --patience 20 \
-  --loss 'SMAPE'\
-  --dropout 0.2\
-  --hidden1 1440\
-  --patch 0\
-  --lradj 'TST' \
-
-
-python -u run.py \
-  --task_name short_term_forecast \
-  --is_training 1 \
+  --is_training 0 \
   --root_path ./dataset/m4 \
   --seasonal_patterns 'Yearly' \
   --model_id m4_Yearly \
@@ -51,13 +27,19 @@ python -u run.py \
   --batch_size $batch_size\
   --des 'Exp' \
   --learning_rate $learning_rate \
-  --train_epochs 150 \
+  --train_epochs 200 \
   --patience 20 \
   --loss 'SMAPE'\
   --dropout 0.2\
   --hidden1 1440\
+  --hidden2 1440\
+  --seasonal 1\
   --patch 0\
   --lradj 'TST' \
+
+
+learning_rate=0.00005
+batch_size=128
 
 python -u run.py \
   --task_name short_term_forecast \
@@ -68,6 +50,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
+  --factor 3 \
   --enc_in 1 \
   --dec_in 1 \
   --c_out 1 \
@@ -79,8 +62,43 @@ python -u run.py \
   --loss 'SMAPE'\
   --dropout 0.2\
   --hidden1 1440\
+  --hidden2 1440\
+  --seasonal 1\
   --patch 0\
   --lradj 'TST' \
+
+learning_rate=0.0001
+batch_size=128
+
+python -u run.py \
+  --task_name short_term_forecast \
+  --is_training 1 \
+  --root_path ./dataset/m4 \
+  --seasonal_patterns 'Monthly' \
+  --model_id m4_Monthly \
+  --model $model_name \
+  --data m4 \
+  --features M \
+  --factor 3 \
+  --enc_in 1 \
+  --dec_in 1 \
+  --c_out 1 \
+  --batch_size $batch_size\
+  --des 'Exp' \
+  --learning_rate $learning_rate \
+  --train_epochs 200 \
+  --patience 20 \
+  --loss 'SMAPE'\
+  --dropout 0.15\
+  --hidden1 1440\
+  --hidden2 1440\
+  --patch 0\
+  --seasonal 1\
+  --lradj 'TST' \
+
+learning_rate=0.0001
+batch_size=64
+
 
 python -u run.py \
   --task_name short_term_forecast \
