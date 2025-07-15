@@ -12,6 +12,7 @@ This is the expanding work from the original paper "Rethinking Fourier Transform
 3. Training. All the scripts are in the directory ```./scripts/long_term_forecast/file_to_implement.sh``` and ```./scripts/short_term_forecast/file_to_implement.sh```
 ```
 sh ./scripts/long_term_forecast/ETTh1.sh
+sh ./scripts/short_term_forecast/PEMS08.sh
 ```
 You can adjust the hyperparameters based on your needs.
 ## Fourier Basis Mapping
