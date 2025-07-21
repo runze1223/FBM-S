@@ -35,7 +35,7 @@ parser.add_argument('--target', type=str, default='OT', help='target feature in 
 parser.add_argument('--freq', type=str, default='h',
                     help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
-parser.add_argument('--drop_last', type=int, default=1,
+parser.add_argument('--drop_last', type=int, default=True,
                     help='drop_last_batch')
 # forecasting task
 parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
