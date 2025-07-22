@@ -52,6 +52,6 @@ https://github.com/decisionintelligence/DUET
 
 ## Citation
 
-If you find this repository useful, please consider citing our paper.
+If you find this repository useful, please consider citing our paper. Give a star to support this respiratory.
 
 If you have any questions, feel free to contact: runze.y@sjtu.edu.cn
