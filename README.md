@@ -7,7 +7,7 @@ This is the expanding work from the original paper "Rethinking Fourier Transform
 
 1. Install requirements. ```pip install -r requirements.txt```
 
-2. Download data. You can download the ETTh1, ETTh2, ETTm1, ETTm2, Electricity and Traffic data from [Autoformer](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy) and WTH data from[ [Google Drive](https://drive.google.com/drive/folders/1ohGYWWohJlOlb2gsGTeEq3Wii2egnEPR?usp=sharing)](https://drive.google.com/drive/folders/13Cg1KYOlzM5C7K8gK8NfC-F3EYxkM3D2) The other datasets can be download at [Baidu Drive](https://pan.baidu.com/share/init?surl=r3KhGd0Q9PJIUZdfEYoymg&pwd=i9iy). Create a seperate folder ```./dataset``` and put all the csv files in the directory.
+2. Download data. You can download the ETTh1, ETTh2, ETTm1, ETTm2, Electricity and Traffic data from [Autoformer](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy) and WTH data from[ [Google Drive]https://drive.google.com/drive/folders/13Cg1KYOlzM5C7K8gK8NfC-F3EYxkM3D2] The other datasets can be download at [Baidu Drive](https://pan.baidu.com/share/init?surl=r3KhGd0Q9PJIUZdfEYoymg&pwd=i9iy). Create a seperate folder ```./dataset``` and put all the csv files in the directory.
 
 3. Training. All the scripts are in the directory ```./scripts/long_term_forecast/file_to_implement.sh``` and ```./scripts/short_term_forecast/file_to_implement.sh```
 ```
