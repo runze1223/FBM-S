@@ -1,6 +1,6 @@
 # Fourier Basis Mapping: A Time-Frequency Learning Framework for Time Series Forecasting
 
-This is the expanding work from the original paper "Rethinking Fourier Transform from A Basis Functions Perspective for Long-term Time Series Forecasting." (NeurIPS 2024) to a journal. 
+This is the expanding work from the original paper "Rethinking Fourier Transform from A Basis Functions Perspective for Long-term Time Series Forecasting." (NeurIPS 2024) to a journal. Please give a star to support this repository if you like it. Many thanks!
 ### This is the offical implementation of FBM-S model. 
 
 ### Implement the project
@@ -52,6 +52,5 @@ https://github.com/decisionintelligence/DUET
 
 ## Citation
 
-If you find this repository useful, please consider citing our paper. Give a star to support this respiratory.
-
+If you find this repository useful, please consider citing our paper.
 If you have any questions, feel free to contact: runze.y@sjtu.edu.cn
