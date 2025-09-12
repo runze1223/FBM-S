@@ -62,7 +62,7 @@ class Base_seasonal(nn.Module):
 
 
 class MLP_backbone(nn.Module):
-    def __init__(self,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale,drop_initial):
+    def __init__(self,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale,drop_initial, intercept ):
         super().__init__()
 
         self.context_window=context_window
@@ -72,6 +72,7 @@ class MLP_backbone(nn.Module):
 
         self.linear=linear
         self.multiscale=multiscale
+        self.intercept=intercept
 
         self.flatten = nn.Flatten(start_dim=-2)
 
@@ -140,8 +141,12 @@ class MLP_backbone(nn.Module):
                                                 nn.Linear(hidden2, target_window),
                                             )
 
-    def forward(self, x):                             
-        x=x[:,:,1:,:]
+    def forward(self, x):
+        if self.intercept:
+            x=x[:,:,1:,:]
+        else:
+            x=x[:,:,:-1,:]
+
         if self.multiscale==1:
             down1= x.reshape(x.shape[0], x.shape[1],x.shape[2]//2,2, x.shape[3])
             down1= down1.sum(dim=-2) 
@@ -186,8 +191,10 @@ class MLP_backbone(nn.Module):
         return x
 
 class MLP_backbone_patch(nn.Module):
-    def __init__(self,c_in,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale,drop_initial,pacth_num,centralization):
+    def __init__(self,c_in,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale,drop_initial,pacth_num,centralization, intercept):
         super().__init__()
+
+        self.intercept=intercept
 
         self.revin1 = RevIN(c_in)
         self.revin2 = RevIN(c_in)
@@ -297,8 +304,13 @@ class MLP_backbone_patch(nn.Module):
                                             )
                      
 
-    def forward(self, x):                             
-        x=x[:,:,1:,:]
+    def forward(self, x):   
+
+        if self.intercept:
+            x=x[:,:,1:,:]
+        else:
+            x=x[:,:,:-1,:]
+        
         if self.multiscale==1:
             down1= x.reshape(x.shape[0], x.shape[1],x.shape[2]//2,2, x.shape[3])
             down1= down1.sum(dim=-2) 
@@ -493,13 +505,15 @@ class backbone_PatchTST(nn.Module):
                  padding_var:Optional[int]=None, attn_mask:Optional[Tensor]=None, res_attention:bool=True, pre_norm:bool=False, store_attn:bool=False,
                  pe:str='zeros', learn_pe:bool=True, fc_dropout:float=0., head_dropout = 0, padding_patch = None,
                  pretrain_head:bool=False, head_type = 'flatten', individual = False, revin = True, affine = True, subtract_last = False,
-                 verbose:bool=False,drop_initial=False,centralization=True, **kwargs):
+                 verbose:bool=False,drop_initial=False,centralization=True,intercept=True, **kwargs):
         
         super().__init__()
 
         self.context_window=context_window
         self.n_vars = c_in
         self.individual = individual
+        self.intercept=intercept
+
 
         self.pacth_num=patch_num
         self.target_window=target_window
@@ -574,8 +588,12 @@ class backbone_PatchTST(nn.Module):
         self.head = Flatten_Head(self.individual, self.n_vars, self.head_nf, target_window, head_dropout=head_dropout)
     
     def forward(self, z):                                                                 
-        z=z[:,:,1:,:]
+        if self.intercept:
+            z=z[:,:,1:,:]
+        else:
+            z=z[:,:,:-1,:]
 
+        
         if self.multiscale==1:
 
             down1= z.reshape(z.shape[0], z.shape[1],z.shape[2]//2,2, z.shape[3])
