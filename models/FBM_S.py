@@ -216,7 +216,7 @@ class Model(nn.Module):
                             attn_mask=attn_mask, res_attention=res_attention, pre_norm=pre_norm, store_attn=store_attn,
                             pe=pe, learn_pe=learn_pe, fc_dropout=fc_dropout, head_dropout=head_dropout, padding_patch = padding_patch,
                             pretrain_head=pretrain_head, head_type=head_type, individual=individual, revin=revin, affine=affine,
-                            subtract_last=subtract_last, verbose=verbose,drop_initial=drop_initial,centralization=centralization, **kwargs)
+                            subtract_last=subtract_last, verbose=verbose,drop_initial=drop_initial,centralization=centralization,intercept=revin, **kwargs)
         else:
             if self.patch==1:
                 self.model= MLP_backbone_patch(c_in,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial,patch_num,centralization,revin)
