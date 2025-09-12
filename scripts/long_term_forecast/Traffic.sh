@@ -10,7 +10,7 @@ fi
 
 
 seq_len=336
-model_name=FBM-Super
+model_name=FBM-S
 embedding=1
 for pred_len in 96 192 336 720
 do
