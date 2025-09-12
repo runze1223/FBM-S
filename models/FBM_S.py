@@ -219,9 +219,9 @@ class Model(nn.Module):
                             subtract_last=subtract_last, verbose=verbose,drop_initial=drop_initial,centralization=centralization, **kwargs)
         else:
             if self.patch==1:
-                self.model= MLP_backbone_patch(c_in,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial,patch_num,centralization)
+                self.model= MLP_backbone_patch(c_in,context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial,patch_num,centralization,revin)
             else:
-                self.model= MLP_backbone(context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial)
+                self.model= MLP_backbone(context_window, target_window,dropout,hidden1,hidden2,linear,multiscale, drop_initial,revin)
 
     def forward(self, x,y,z):           # x: [Batch, Input length, Channel]
 
