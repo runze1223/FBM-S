@@ -39,6 +39,7 @@ do
     --drop_initial 1\
     --patch 1\
     --lradj 'TST'\
+    --revin 0\
     --itr 1 --batch_size 64 --learning_rate 0.0005  >logs/ShortForecasting_new/PEMS08_$model_name'_336_'$pred_len.log  
 done
 
@@ -72,6 +73,7 @@ do
     --drop_initial 1\
     --patch 1\
     --lradj 'TST'\
+    --revin 0\
     --itr 1 --batch_size 64 --learning_rate 0.0005  >logs/ShortForecasting_new/PEMS03_$model_name'_336_'$pred_len.log  
 done
 
@@ -105,6 +107,7 @@ do
     --drop_initial 1\
     --patch 1\
     --lradj 'TST'\
+    --revin 0\
     --itr 1 --batch_size 64 --learning_rate 0.0005  >logs/ShortForecasting_new/PEMS07_$model_name'_336_'$pred_len.log  
 done
 
@@ -139,5 +142,6 @@ do
     --drop_initial 1\
     --patch 1\
     --lradj 'TST'\
+    --revin 0\
     --itr 1 --batch_size 64 --learning_rate 0.0005   >logs/ShortForecasting_new/PEMS04_$model_name'_336_'$pred_len.log  
 done
