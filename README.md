@@ -15,6 +15,8 @@ sh ./scripts/long_term_forecast/ETTh1.sh
 sh ./scripts/short_term_forecast/PEMS.sh
 ```
 You can adjust the hyperparameters based on your needs. Notably, our method requires a smaller learning rate due to the decomposition of values, and the learning rate adjustment strategy 'TST' has been excluded for Long-term TSF.
+
+NEWS: Standardization on the PEMS datasets has been removed for better performance, and intercept information has been added to the trend block. 
 ## Fourier Basis Mapping
 
 ![alt text](https://github.com/runze1223/FBM-S/blob/main/pic/imag1.png)
