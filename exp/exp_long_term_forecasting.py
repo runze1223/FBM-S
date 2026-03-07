@@ -41,10 +41,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        if self.args.data == 'PEMS':
-            criterion = nn.L1Loss()
-        else:
-            criterion = nn.MSELoss()
+        criterion = nn.L1Loss()
+        # if self.args.data == 'PEMS':
+        #     criterion = nn.L1Loss()
+        # else:
+        #     criterion = nn.MSELoss()
         return criterion
 
     def vali(self, basis_data, vali_loader, criterion):
